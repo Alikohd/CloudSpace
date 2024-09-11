@@ -15,23 +15,27 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthController {
     private final UserService userService;
-    @GetMapping("/signup")
+    @GetMapping("/sign-up")
     public String signUpForm(Model model) {
         model.addAttribute("user", new User());
-        return "auth/signup";
+        return "auth/sign-up";
     }
 
-    @PostMapping("/signup")
+    @PostMapping("/sign-up")
     public String signUpUser(@ModelAttribute User user) {
         userService.addUser(user);
-        return "redirect:/users";
+        return "redirect:/sign-in";
     }
-
 
     @GetMapping("/users")
     public String showUsers(Model model) {
         List<User> users = userService.getUsers();
         model.addAttribute("users", users);
         return "auth/main";
+    }
+
+    @GetMapping("/sign-in")
+    public String signInForm() {
+        return "auth/sign-in";
     }
 }

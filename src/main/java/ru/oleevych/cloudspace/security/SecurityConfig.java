@@ -33,8 +33,18 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
-                        (auth) ->auth.requestMatchers("/signup", "users").permitAll().anyRequest().authenticated()
+                .authorizeHttpRequests((auth) -> auth
+                        .requestMatchers("/sign-up").permitAll()
+                        .anyRequest().authenticated())
+                .formLogin(login -> login
+                        .loginPage("/sign-in")
+                        .defaultSuccessUrl("/users")
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                                .logoutUrl("/logout")
+                                .logoutSuccessUrl("/sign-in")
+//                        .deleteCookies("JSESSIONID")
                 )
                 .build();
     }
