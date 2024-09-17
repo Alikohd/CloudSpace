@@ -125,8 +125,11 @@
             <version>${maven-failsafe-plugin-version}</version>
             <scope>test</scope>
         </dependency>
-
-
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.5.12</version>
+        </dependency>
     </dependencies>
 
     <build>
