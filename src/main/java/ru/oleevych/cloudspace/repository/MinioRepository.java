@@ -1,16 +1,12 @@
 package ru.oleevych.cloudspace.repository;
 
 import io.minio.*;
-import io.minio.errors.*;
 import io.minio.messages.Item;
+import org.springframework.stereotype.Repository;
 import ru.oleevych.cloudspace.exceptions.MinioOperationException;
-
-import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
-
+@Repository
 public class MinioRepository implements FileRepository{
     private final MinioClient minioClient =
             MinioClient.builder()
@@ -69,8 +65,21 @@ public class MinioRepository implements FileRepository{
 
     @Override
     public void moveFolder(String currFolderPath, String newFolderPath) {
+        Iterable<Result<Item>> folderContent = minioClient.listObjects(ListObjectsArgs.builder()
+                .bucket(BUCKET_NAME)
+                .recursive(true)
+                .prefix(currFolderPath)
+                .build());
 
+        folderContent.forEach(object -> {
+            try {
+                String filePathFromRoot = object.get().objectName();
+                String filePathInCurrFolder = filePathFromRoot.split(currFolderPath)[1];
+                moveFile(filePathFromRoot, newFolderPath + filePathInCurrFolder);
+            } catch (Exception e) {
+                throw new MinioOperationException(e);
+            }
+        });
     }
-
 
 }
