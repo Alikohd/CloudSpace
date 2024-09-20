@@ -16,7 +16,7 @@ import java.util.List;
 public class UserService {
     public final UserRepository userRepository;
     public final PasswordEncoder encoder;
-    public void addUser(User user) {
+    public void registerUser(User user) {
         String encodedPassword = encoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         try {

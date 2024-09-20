@@ -23,7 +23,7 @@ public class AuthController {
 
     @PostMapping("/sign-up")
     public String signUpUser(@ModelAttribute User user) {
-        userService.addUser(user);
+        userService.registerUser(user);
         return "redirect:/sign-in";
     }
 
