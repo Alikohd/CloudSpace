@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import ru.oleevych.cloudspace.dto.UserRegisterDto;
 import ru.oleevych.cloudspace.entity.User;
 import ru.oleevych.cloudspace.service.UserService;
 
@@ -17,13 +18,13 @@ public class AuthController {
     private final UserService userService;
     @GetMapping("/sign-up")
     public String signUpForm(Model model) {
-        model.addAttribute("user", new User());
+        model.addAttribute("user", new UserRegisterDto());
         return "auth/sign-up";
     }
 
     @PostMapping("/sign-up")
-    public String signUpUser(@ModelAttribute User user) {
-        userService.registerUser(user);
+    public String signUpUser(@ModelAttribute UserRegisterDto userDto) {
+        userService.registerUser(userDto);
         return "redirect:/sign-in";
     }
 
