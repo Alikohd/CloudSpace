@@ -11,6 +11,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ru.oleevych.cloudspace.dto.UserRegisterDto;
 import ru.oleevych.cloudspace.entity.User;
+import ru.oleevych.cloudspace.exceptions.PasswordsMismatchException;
 import ru.oleevych.cloudspace.exceptions.UserAlreadyExistsException;
 import ru.oleevych.cloudspace.repository.UserRepository;
 
@@ -59,5 +60,14 @@ class UserServiceIT {
         assertThatThrownBy(() -> {
             userService.registerUser(user2);
         }).isInstanceOf(UserAlreadyExistsException.class).hasMessageContaining("User with username president already exists");
+    }
+
+    @Test
+    void registerUser_userPasswordsMismatch_throwsPasswordsMismatchException() {
+        UserRegisterDto user = new UserRegisterDto("admin", "qwerty", "greAte_p4sSw0rd");
+
+        assertThatThrownBy(() -> {
+            userService.registerUser(user);
+        }).isInstanceOf(PasswordsMismatchException.class).hasMessageContaining("Passwords didn't match!");
     }
 }
