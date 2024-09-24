@@ -6,8 +6,4 @@ import ru.oleevych.cloudspace.exceptions.UserAlreadyExistsException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public String handleUserAlreadyExistsException() {
-        return "redirect:/sign-up";
-    }
 }
