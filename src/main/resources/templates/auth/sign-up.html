@@ -5,7 +5,7 @@
     <title>Register User</title>
 </head>
 <body>
-<form th:method="POST" th:action="@{/sign-up}" th:object="${userRegisterDto}">
+<form th:method="POST" th:action="@{/sign-up}" th:object="${user}">
     <label for="username"> Enter name: </label>
     <input type="text" th:field="*{username}" id="username"/>
     <p style="color: red" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>

@@ -23,14 +23,14 @@ public class AuthController {
     private final UserService userService;
     @GetMapping("/sign-up")
     public String signUpForm(Model model) {
-        if (!model.containsAttribute("userRegisterDto")) {
-            model.addAttribute("userRegisterDto", new UserRegisterDto());
+        if (!model.containsAttribute("user")) {
+            model.addAttribute("user", new UserRegisterDto());
         }
         return "auth/sign-up";
     }
 
     @PostMapping("/sign-up")
-    public String signUpUser(@ModelAttribute @Valid UserRegisterDto userDto,
+    public String signUpUser(@ModelAttribute("user") @Valid UserRegisterDto userDto,
                              BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "auth/sign-up";
