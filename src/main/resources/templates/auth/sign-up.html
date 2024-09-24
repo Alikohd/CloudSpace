@@ -5,7 +5,7 @@
     <title>Register User</title>
 </head>
 <body>
-<form th:method="POST" th:action="@{/sign-up}" th:object="${user}">
+<form th:method="POST" th:action="@{/sign-up}" th:object="${userRegisterDto}">
     <label for="username"> Enter name: </label>
     <input type="text" th:field="*{username}" id="username"/>
     <p style="color: red" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
@@ -19,7 +19,9 @@
 
     <label for="confirmPassword"> Confirm password: </label>
     <input type="password" th:field="*{confirmPassword}" id="confirmPassword"/>
-    <p style="color: red" th:if="${passwordsMismatch}" th:text="${passwordsMismatch}"> </p>
+    <p style="color: red" th:each="error : ${#fields.globalErrors()}" th:text="${error}">
+        Global error
+    </p>
     <br/>
 
     <input type="submit" value="Sign up">

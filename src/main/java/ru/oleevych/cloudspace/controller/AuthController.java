@@ -5,13 +5,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.oleevych.cloudspace.dto.UserRegisterDto;
 import ru.oleevych.cloudspace.entity.User;
 import ru.oleevych.cloudspace.exceptions.PasswordsMismatchException;
+import ru.oleevych.cloudspace.exceptions.SignUpException;
 import ru.oleevych.cloudspace.service.UserService;
 
 import java.util.List;
@@ -22,27 +23,24 @@ public class AuthController {
     private final UserService userService;
     @GetMapping("/sign-up")
     public String signUpForm(Model model) {
-        if (!model.containsAttribute("user")) {
-            model.addAttribute("user", new UserRegisterDto());
+        if (!model.containsAttribute("userRegisterDto")) {
+            model.addAttribute("userRegisterDto", new UserRegisterDto());
         }
         return "auth/sign-up";
     }
 
     @PostMapping("/sign-up")
     public String signUpUser(@ModelAttribute @Valid UserRegisterDto userDto,
-                             BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+                             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("user", userDto);
-            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
-            return "redirect:/sign-up";
+            return "auth/sign-up";
         }
 
         try {
             userService.registerUser(userDto);
-        } catch (PasswordsMismatchException e) {
-            redirectAttributes.addFlashAttribute("user", userDto);
-            redirectAttributes.addFlashAttribute("passwordsMismatch", e.getMessage());
-            return "redirect:/sign-up";
+        } catch (SignUpException e) {
+            bindingResult.addError(new ObjectError("signUpError", e.getMessage()));
+            return "auth/sign-up";
         }
         return "redirect:/sign-in";
     }
