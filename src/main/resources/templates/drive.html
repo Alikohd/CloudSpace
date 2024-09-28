@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Drive</title>
+</head>
+<body>
+    Hello from drive page!
+    <ul>
+        <li th:each="file: ${files}">
+            <span th:text="${file.name}"/> - <span th:text="${file.dir} ? 'Dir' : 'File'"> </span>
+        </li>
+    </ul>
+</body>
+</html>

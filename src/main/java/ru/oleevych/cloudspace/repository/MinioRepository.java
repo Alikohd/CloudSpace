@@ -2,21 +2,28 @@ package ru.oleevych.cloudspace.repository;
 
 import io.minio.*;
 import io.minio.messages.Item;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import ru.oleevych.cloudspace.dto.FileResponseDto;
 import ru.oleevych.cloudspace.exceptions.MinioOperationException;
+import ru.oleevych.cloudspace.mapper.MinioMapper;
+
 import java.io.InputStream;
+import java.util.List;
 
 @Repository
-public class MinioRepository implements FileRepository{
+@RequiredArgsConstructor
+public class MinioRepository implements FileRepository {
     private final MinioClient minioClient =
             MinioClient.builder()
                     .endpoint("http://localhost:9000")
                     .credentials("devuser", "devpassword")
                     .build();
     private static final String BUCKET_NAME = "user-files";
+    private final MinioMapper minioMapper;
 
     @Override
-    public void createFile(String pathToSave, InputStream fileInputStream) {
+    public void saveFile(String pathToSave, InputStream fileInputStream) {
         try {
             minioClient.putObject(
                     PutObjectArgs.builder()
@@ -80,6 +87,16 @@ public class MinioRepository implements FileRepository{
                 throw new MinioOperationException(e);
             }
         });
+    }
+
+    @Override
+    public List<FileResponseDto> getFilesFromFolder(String folder, Boolean recursive) {
+        Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder()
+                .recursive(recursive)
+                .prefix(folder)
+                .bucket(BUCKET_NAME)
+                .build());
+        return minioMapper.mapToListDto(results);
     }
 
 }

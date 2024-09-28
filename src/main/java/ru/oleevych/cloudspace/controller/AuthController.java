@@ -10,12 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import ru.oleevych.cloudspace.dto.UserRegisterDto;
-import ru.oleevych.cloudspace.entity.User;
-import ru.oleevych.cloudspace.exceptions.PasswordsMismatchException;
 import ru.oleevych.cloudspace.exceptions.SignUpException;
 import ru.oleevych.cloudspace.service.UserService;
-
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -43,13 +39,6 @@ public class AuthController {
             return "auth/sign-up";
         }
         return "redirect:/sign-in";
-    }
-
-    @GetMapping("/users")
-    public String showUsers(Model model) {
-        List<User> users = userService.getUsers();
-        model.addAttribute("users", users);
-        return "auth/main";
     }
 
     @GetMapping("/sign-in")

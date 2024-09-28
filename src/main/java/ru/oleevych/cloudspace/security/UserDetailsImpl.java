@@ -6,7 +6,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import ru.oleevych.cloudspace.entity.User;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public class UserDetailsImpl implements UserDetails {
@@ -29,5 +28,9 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public String getUsername() {
         return user.getUsername();
+    }
+
+    public Long getUserId() {
+        return user.getId();
     }
 }
