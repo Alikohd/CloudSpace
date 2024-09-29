@@ -5,11 +5,17 @@
     <title>Drive</title>
 </head>
 <body>
-    Hello from drive page!
-    <ul>
-        <li th:each="file: ${files}">
-            <span th:text="${file.name}"/> - <span th:text="${file.dir} ? 'Dir' : 'File'"> </span>
-        </li>
-    </ul>
+Hello from drive page!
+<br>
+<span th:each="breadcrumb, iter : ${breadcrumbs}">
+    <a th:text="${breadcrumb.folderName}" th:href="@{/drive(path=${breadcrumb.folderLink})}"> </a>
+    <span th:if="!${iter.last}"> --- </span>
+</span>
+
+<ul>
+    <li th:each="file: ${files}">
+        <span th:text="${file.name}"/> - <span th:text="${file.dir} ? 'Dir' : 'File'"> </span>
+    </li>
+</ul>
 </body>
 </html>

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import ru.oleevych.cloudspace.dto.FileResponseDto;
 import ru.oleevych.cloudspace.security.UserDetailsImpl;
 import ru.oleevych.cloudspace.service.FileService;
+import ru.oleevych.cloudspace.utils.BreadcrumbUtils;
 
 import java.util.List;
 
@@ -19,12 +20,15 @@ import java.util.List;
 public class FileController {
     private final FileService fileService;
     @GetMapping()
-    public String getFiles(@RequestParam String folder, @RequestParam boolean recursive, Model model,
+    public String getFiles(@RequestParam String path,
+                           @RequestParam(defaultValue = "false") boolean recursive, Model model,
                            @AuthenticationPrincipal UserDetailsImpl user) {
         List<FileResponseDto> files = fileService.getFiles(
-                String.format("user-%d-files/%s", user.getUserId(), folder),
+                String.format("user-%d-files/%s", user.getUserId(), path),
                 recursive);
         model.addAttribute("files", files);
+        model.addAttribute("breadcrumbs", BreadcrumbUtils.createBreadcrumbs(path));
         return "drive";
     }
+
 }
