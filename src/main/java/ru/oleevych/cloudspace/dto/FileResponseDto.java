@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class FileResponseDto {
     private String name;
+    private String path;
     private boolean isDir;
     private long size;
 }

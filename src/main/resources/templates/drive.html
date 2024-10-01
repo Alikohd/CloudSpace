@@ -14,7 +14,8 @@ Hello from drive page!
 
 <ul>
     <li th:each="file: ${files}">
-        <span th:text="${file.name}"/> - <span th:text="${file.dir} ? 'Dir' : 'File'"> </span>
+        <a th:if="${file.dir}" th:href="@{/drive(path=${file.path})}" th:text="${file.name}"> </a>
+        <span th:unless="${file.dir}" th:text="${file.name}"> </span>
     </li>
 </ul>
 </body>
