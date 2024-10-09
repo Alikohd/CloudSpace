@@ -4,7 +4,7 @@ import io.minio.*;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import ru.oleevych.cloudspace.dto.FileResponseDto;
+import ru.oleevych.cloudspace.dto.FileMetaDto;
 import ru.oleevych.cloudspace.exceptions.MinioOperationException;
 import ru.oleevych.cloudspace.mapper.MinioMapper;
 
@@ -90,13 +90,27 @@ public class MinioRepository implements FileRepository {
     }
 
     @Override
-    public List<FileResponseDto> getFilesFromFolder(String folder, Boolean recursive) {
+    public List<FileMetaDto> getFilesFromFolder(String folder, Boolean recursive) {
         Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder()
                 .recursive(recursive)
                 .prefix(folder)
                 .bucket(BUCKET_NAME)
                 .build());
         return minioMapper.mapToListDto(results);
+    }
+
+    @Override
+    public InputStream getFile(String filePath) {
+        GetObjectResponse file;
+        try {
+            file = minioClient.getObject(GetObjectArgs.builder()
+                    .bucket(BUCKET_NAME)
+                    .object(filePath)
+                    .build());
+        } catch (Exception e) {
+            throw new MinioOperationException(e.getCause());
+        }
+        return file;
     }
 
 }

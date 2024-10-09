@@ -3,7 +3,7 @@ package ru.oleevych.cloudspace.mapper;
 import io.minio.Result;
 import io.minio.messages.Item;
 import org.springframework.stereotype.Component;
-import ru.oleevych.cloudspace.dto.FileResponseDto;
+import ru.oleevych.cloudspace.dto.FileMetaDto;
 import ru.oleevych.cloudspace.exceptions.MinioMappingException;
 
 import java.nio.file.Path;
@@ -13,16 +13,13 @@ import java.util.List;
 
 @Component
 public class MinioMapper {
-    public List<FileResponseDto> mapToListDto(Iterable<Result<Item>> items) {
-        List<FileResponseDto> resultList = new ArrayList<>();
+    public List<FileMetaDto> mapToListDto(Iterable<Result<Item>> items) {
+        List<FileMetaDto> resultList = new ArrayList<>();
         items.forEach(item -> {
             try {
                 Item currItem = item.get();
                 var currDto = mapToDto(currItem);
                 String nameWithHiddenUserDir = currDto.getPath().replaceFirst("user-\\d-files/", "");
-                if (!nameWithHiddenUserDir.contains("/")) {
-                    nameWithHiddenUserDir = "";
-                }
                 currDto.setPath(nameWithHiddenUserDir);
                 resultList.add(currDto);
             } catch (Exception e) {
@@ -32,9 +29,9 @@ public class MinioMapper {
         return resultList;
     }
 
-    private FileResponseDto mapToDto(Item item) {
+    private FileMetaDto mapToDto(Item item) {
         Path filePath = Paths.get(item.objectName());
-        return FileResponseDto.builder()
+        return FileMetaDto.builder()
                 .name(filePath.getFileName().toString())
                 .path(item.objectName())
                 .isDir(item.isDir())

@@ -2,10 +2,12 @@ package ru.oleevych.cloudspace.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.oleevych.cloudspace.dto.FileResponseDto;
+import ru.oleevych.cloudspace.dto.FileDto;
+import ru.oleevych.cloudspace.dto.FileMetaDto;
 import ru.oleevych.cloudspace.repository.FileRepository;
 
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -16,7 +18,13 @@ public class FileService {
         fileRepository.saveFile("user-" + id.toString() + "-files/" + path, file);
     }
 
-    public List<FileResponseDto> getFiles(String folder, boolean recursive) {
+    public List<FileMetaDto> getFiles(String folder, boolean recursive) {
         return fileRepository.getFilesFromFolder(folder, recursive);
+    }
+
+    public FileDto downloadFile(String filePath) {
+        String name = Paths.get(filePath).getFileName().toString();
+        InputStream file = fileRepository.getFile(filePath);
+        return new FileDto(name, file);
     }
 }

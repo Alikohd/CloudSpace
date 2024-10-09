@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class FileResponseDto {
+public class FileMetaDto {
     private String name;
     private String path;
     private boolean isDir;
