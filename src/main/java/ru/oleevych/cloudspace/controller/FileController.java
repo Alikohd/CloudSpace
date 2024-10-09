@@ -26,13 +26,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FileController {
     private final FileService fileService;
+    private final String USER_FILES_PATTERN = "user-%d-files/%s";
     @GetMapping()
     public String getFiles(@RequestParam String path,
                            @RequestParam(defaultValue = "false") boolean recursive, Model model,
                            @AuthenticationPrincipal UserDetailsImpl user) {
-        List<FileMetaDto> files = fileService.getFiles(
-                String.format("user-%d-files/%s", user.getUserId(), path),
-                recursive);
+        String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), path);
+        List<FileMetaDto> files = fileService.getFiles(userPath, recursive);
         model.addAttribute("files", files);
         model.addAttribute("breadcrumbs", BreadcrumbUtils.createBreadcrumbs(path));
         return "drive";
@@ -40,14 +40,13 @@ public class FileController {
 
     @GetMapping("/download")
     public ResponseEntity<Resource> downloadFile(@RequestParam String path, @AuthenticationPrincipal UserDetailsImpl user) throws IOException {
-        String userPath = String.format("user-%d-files/%s", user.getUserId(), path);
+        String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), path);
         FileDto fileDto = fileService.downloadFile(userPath);
-        Resource resource = new ByteArrayResource(fileDto.getContent().readAllBytes());
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .contentLength(resource.contentLength())
+                .contentLength(fileDto.getContent().contentLength())
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileDto.getName() + "\"")
-                .body(resource);
+                .body(fileDto.getContent());
     }
 
     // TODO Rename & Upload/Download endpoints

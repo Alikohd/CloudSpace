@@ -108,7 +108,7 @@ public class MinioRepository implements FileRepository {
                     .object(filePath)
                     .build());
         } catch (Exception e) {
-            throw new MinioOperationException(e.getCause());
+            throw new MinioOperationException(e);
         }
         return file;
     }
