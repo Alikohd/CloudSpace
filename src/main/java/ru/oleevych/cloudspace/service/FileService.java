@@ -18,8 +18,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FileService {
     private final FileRepository fileRepository;
-    public void saveFile(Long id, String path, InputStream file) {
-        fileRepository.saveFile("user-" + id.toString() + "-files/" + path, file);
+    public void saveFile(String path, InputStream file) {
+        fileRepository.saveFile(path, file);
     }
 
     public List<FileMetaDto> getFiles(String folder, boolean recursive) {

@@ -20,6 +20,15 @@ Hello from drive page!
         <a th:unless="${file.dir}" th:href="@{/drive/download(path=${file.path})}" th:text="Скачать"> </a>
     </li>
 </ul>
+
+<input type="hidden" name="path" th:value="${currentPath}">
+
+<form method="POST" enctype="multipart/form-data" th:action="@{drive/upload(path=${currentPath})}">
+    File to upload:
+    <input type="file" name="file"/>
+    <br>
+    <input type="submit" value="Upload">
+</form>
 </body>
 </html>
 
