@@ -23,10 +23,6 @@ public class FileService {
         fileRepository.saveFile(path, file);
     }
 
-    public List<FileMetaDto> getFiles(String folder, boolean recursive) {
-        return fileRepository.getFilesFromFolder(folder, recursive);
-    }
-
     public FileDto downloadFile(String filePath) {
         String name = Paths.get(filePath).getFileName().toString();
         InputStream file = fileRepository.getFile(filePath);

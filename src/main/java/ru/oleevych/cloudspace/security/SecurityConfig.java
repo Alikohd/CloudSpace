@@ -38,7 +38,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .formLogin(login -> login
                         .loginPage("/sign-in")
-                        .defaultSuccessUrl("/users")
+                        .defaultSuccessUrl("/drive/folder?path=")
                         .permitAll()
                 )
                 .logout(logout -> logout

@@ -24,23 +24,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Controller
-@RequestMapping("/drive")
+@RequestMapping("/drive/file")
 @RequiredArgsConstructor
 public class FileController {
     private final FileService fileService;
     private final String USER_FILES_PATTERN = "user-%d-files/%s";
-
-    @GetMapping()
-    public String getFiles(@RequestParam String path,
-                           @RequestParam(defaultValue = "false") boolean recursive, Model model,
-                           @AuthenticationPrincipal UserDetailsImpl user) {
-        String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), path);
-        List<FileMetaDto> files = fileService.getFiles(userPath, recursive);
-        model.addAttribute("files", files);
-        model.addAttribute("breadcrumbs", BreadcrumbUtils.createBreadcrumbs(path));
-        model.addAttribute("currentPath", path);
-        return "drive";
-    }
+    private final String HOME_URL_REDIRECT = "redirect:/drive/folder?path=";
 
     @GetMapping("/download")
     public ResponseEntity<Resource> downloadFile(@RequestParam String path, @AuthenticationPrincipal UserDetailsImpl user) throws IOException {
@@ -54,23 +43,24 @@ public class FileController {
     }
 
     @PostMapping(value = "upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public String uploadFile(@RequestParam("path") String path,
+    public String uploadFile(@RequestParam("location") String location,
                              @RequestParam("file") MultipartFile file,
                              @AuthenticationPrincipal UserDetailsImpl user) throws IOException {
-        String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), path);
+        String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), location);
         fileService.saveFile(userPath + file.getOriginalFilename(), file.getInputStream());
-        return "redirect:/drive?path=" + URLEncoder.encode(path, StandardCharsets.UTF_8);
+        return HOME_URL_REDIRECT + URLEncoder.encode(location, StandardCharsets.UTF_8);
     }
 
     @PatchMapping("rename")
     public String renameFile(@RequestParam("path") String path,
-                           @RequestParam("location") String location,
-                           @RequestParam("newName") String newName,
-                           @AuthenticationPrincipal UserDetailsImpl user) {
+                             @RequestParam("location") String location,
+                             @RequestParam("newName") String newName,
+                             @AuthenticationPrincipal UserDetailsImpl user) {
         String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), path);
         fileService.renameFile(userPath, newName);
-        return "redirect:/drive?path=" + URLEncoder.encode(location, StandardCharsets.UTF_8);
+        return HOME_URL_REDIRECT + URLEncoder.encode(location, StandardCharsets.UTF_8);
     }
+
 
     // TODO Rename & Upload/Download endpoints
     // TODO Валидация путей по которым приходят файлы

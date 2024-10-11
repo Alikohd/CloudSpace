@@ -10,24 +10,26 @@
 Hello from drive page!
 <br>
 <span th:each="breadcrumb, iter : ${breadcrumbs}">
-    <a th:text="${breadcrumb.folderName}" th:href="@{/drive(path=${breadcrumb.folderLink})}"> </a>
-    <span th:if="!${iter.last}"> --- </span>
+    <a th:text="${breadcrumb.folderName}" th:href="@{/drive/folder(path=${breadcrumb.folderLink})}"> </a>
+    <span th:if="!${iter.last}"> ---> </span>
 </span>
 
 <ul>
     <li th:each="file, iStat: ${files}">
-        <a th:if="${file.dir}" th:href="@{/drive(path=${file.path})}" th:text="${file.name}"> </a>
-        <span th:unless="${file.dir}" th:text="${file.name}"> </span>
+        <a th:if="${file.dir}" th:href="@{/drive/folder(path=${file.path})}" th:text="${file.name}"> </a>
         <div class="row" th:unless="${file.dir}">
             <div class="col-md-1">
-                <button class="btn btn-primary" type="button" data-toggle="collapse"
+        <span th:unless="${file.dir}" th:text="${file.name}"> </span>
+            </div>
+                <div class="col-md-1">
+                <button class="btn btn-secondary" type="button" data-toggle="collapse"
                         th:attr="data-target='#collapseFile' + ${iStat.index}" aria-expanded="false"
                         aria-controls="collapseExample"> Rename
                 </button>
             </div>
 
             <div class="collapse col-md-2" th:id="'collapseFile' + ${iStat.index}">
-                <form th:method="PATCH" th:action="@{drive/rename(path=${file.path}, location=${currentPath})}">
+                <form th:method="PATCH" th:action="@{drive/file/rename(path=${file.path}, location=${currentPath})}">
                     <label for="newName"> Enter new name: </label>
                     <input name="newName" id="newName" type="text"/>
 
@@ -35,7 +37,7 @@ Hello from drive page!
                 </form>
             </div>
             <div class="col-md-1">
-                <a th:href="@{/drive/download(path=${file.path})}" th:text="Скачать"> </a>
+                <a class="btn btn-primary" th:href="@{/drive/file/download(path=${file.path})}" th:text="Скачать"> </a>
             </div>
         </div>
     </li>
@@ -44,13 +46,19 @@ Hello from drive page!
 
 <input type="hidden" name="path" th:value="${currentPath}">
 
-<form method="POST" enctype="multipart/form-data" th:action="@{drive/upload(path=${currentPath})}">
+<form method="POST" enctype="multipart/form-data" th:action="@{/drive/file/upload(location=${currentPath})}">
     File to upload:
     <input type="file" name="file"/>
     <br>
     <input type="submit" value="Upload">
 </form>
 </body>
+
+<style>
+    ul {
+        list-style: none;
+    }
+</style>
 </html>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
