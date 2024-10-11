@@ -9,10 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.oleevych.cloudspace.dto.FileDto;
@@ -63,6 +60,16 @@ public class FileController {
         String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), path);
         fileService.saveFile(userPath + file.getOriginalFilename(), file.getInputStream());
         return "redirect:/drive?path=" + URLEncoder.encode(path, StandardCharsets.UTF_8);
+    }
+
+    @PatchMapping("rename")
+    public String renameFile(@RequestParam("path") String path,
+                           @RequestParam("location") String location,
+                           @RequestParam("newName") String newName,
+                           @AuthenticationPrincipal UserDetailsImpl user) {
+        String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), path);
+        fileService.renameFile(userPath, newName);
+        return "redirect:/drive?path=" + URLEncoder.encode(location, StandardCharsets.UTF_8);
     }
 
     // TODO Rename & Upload/Download endpoints

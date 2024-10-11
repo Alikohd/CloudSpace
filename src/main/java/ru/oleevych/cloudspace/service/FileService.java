@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.oleevych.cloudspace.dto.FileDto;
 import ru.oleevych.cloudspace.dto.FileMetaDto;
 import ru.oleevych.cloudspace.exceptions.DownloadFileException;
+import ru.oleevych.cloudspace.exceptions.ObjectAlreadyExists;
 import ru.oleevych.cloudspace.repository.FileRepository;
 
 import java.io.IOException;
@@ -29,12 +30,20 @@ public class FileService {
     public FileDto downloadFile(String filePath) {
         String name = Paths.get(filePath).getFileName().toString();
         InputStream file = fileRepository.getFile(filePath);
-        Resource resource = null;
+        Resource resource;
         try {
             resource = new ByteArrayResource(file.readAllBytes());
         } catch (IOException e) {
             throw new DownloadFileException("Error while reading" + name + "file", e);
         }
         return new FileDto(name, resource);
+    }
+
+    public void renameFile(String path, String newName) {
+        String newPath = path.replaceFirst("[^/]+$", newName);
+        if (fileRepository.exists(newPath)) {
+            throw new ObjectAlreadyExists("File on the path " + newPath + " already exists");
+        }
+        fileRepository.moveFile(path, newPath);
     }
 }

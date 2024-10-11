@@ -113,4 +113,18 @@ public class MinioRepository implements FileRepository {
         return file;
     }
 
+    @Override
+    public boolean exists(String path) {
+        try {
+            minioClient.statObject(StatObjectArgs.builder()
+                    .bucket(BUCKET_NAME)
+                    .object(path)
+                    .build());
+            return true;
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }

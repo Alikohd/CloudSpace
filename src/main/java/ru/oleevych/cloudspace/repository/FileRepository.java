@@ -12,5 +12,7 @@ public interface FileRepository {
     void moveFolder(String currFolderPath, String newFolderPath);
     List<FileMetaDto> getFilesFromFolder(String folder, Boolean recursive);
     InputStream getFile(String filePath);
+
+    boolean exists(String path);
 }
 
