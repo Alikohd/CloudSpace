@@ -100,6 +100,11 @@ public class MinioRepository implements FileRepository {
     }
 
     @Override
+    public boolean isFolderExists(String path) {
+        return !getFilesFromFolder(path, false).isEmpty();
+    }
+
+    @Override
     public InputStream getFile(String filePath) {
         GetObjectResponse file;
         try {
@@ -114,7 +119,7 @@ public class MinioRepository implements FileRepository {
     }
 
     @Override
-    public boolean exists(String path) {
+    public boolean isFileExists(String path) {
         try {
             minioClient.statObject(StatObjectArgs.builder()
                     .bucket(BUCKET_NAME)

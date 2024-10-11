@@ -16,12 +16,11 @@ Hello from drive page!
 
 <ul>
     <li th:each="file, iStat: ${files}">
-        <a th:if="${file.dir}" th:href="@{/drive/folder(path=${file.path})}" th:text="${file.name}"> </a>
         <div class="row" th:unless="${file.dir}">
-            <div class="col-md-1">
-        <span th:unless="${file.dir}" th:text="${file.name}"> </span>
+            <div class="col-md-4">
+                <span th:unless="${file.dir}" th:text="${file.name}"> </span>
             </div>
-                <div class="col-md-1">
+            <div class="col-md-1">
                 <button class="btn btn-secondary" type="button" data-toggle="collapse"
                         th:attr="data-target='#collapseFile' + ${iStat.index}" aria-expanded="false"
                         aria-controls="collapseExample"> Rename
@@ -29,7 +28,7 @@ Hello from drive page!
             </div>
 
             <div class="collapse col-md-2" th:id="'collapseFile' + ${iStat.index}">
-                <form th:method="PATCH" th:action="@{drive/file/rename(path=${file.path}, location=${currentPath})}">
+                <form th:method="PATCH" th:action="@{/drive/file/rename(path=${file.path}, location=${currentPath})}">
                     <label for="newName"> Enter new name: </label>
                     <input name="newName" id="newName" type="text"/>
 
@@ -40,6 +39,27 @@ Hello from drive page!
                 <a class="btn btn-primary" th:href="@{/drive/file/download(path=${file.path})}" th:text="Скачать"> </a>
             </div>
         </div>
+
+        <div class="row" th:if="${file.dir}">
+            <div class="col-md-4">
+            <a th:if="${file.dir}" th:href="@{/drive/folder(path=${file.path})}" th:text="${file.name}"> </a>
+            </div>
+            <div class="col-md-1">
+                <button class="btn btn-secondary" type="button" data-toggle="collapse"
+                        th:attr="data-target='#collapseFolder' + ${iStat.index}" aria-expanded="false"
+                        aria-controls="collapseExample"> Rename
+                </button>
+            </div>
+
+            <div class="collapse col-md-2" th:id="'collapseFolder' + ${iStat.index}">
+                <form th:method="PATCH" th:action="@{/drive/folder/rename(path=${file.path}, location=${currentPath})}">
+                    <label for="newFolderName"> Enter new folder name: </label>
+                    <input name="newName" id="newFolderName" type="text"/>
+                    <input type="submit" value="Confirm"/>
+                </form>
+            </div>
+        </div>
+        <br>
     </li>
 
 </ul>

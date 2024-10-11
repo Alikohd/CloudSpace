@@ -11,8 +11,11 @@ public interface FileRepository {
     void moveFile(String currFilePath, String newFilePath);
     void moveFolder(String currFolderPath, String newFolderPath);
     List<FileMetaDto> getFilesFromFolder(String folder, Boolean recursive);
+
+    boolean isFolderExists(String path);
+
     InputStream getFile(String filePath);
 
-    boolean exists(String path);
+    boolean isFileExists(String path);
 }
 
