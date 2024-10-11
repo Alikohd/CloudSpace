@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import ru.oleevych.cloudspace.dto.FileDto;
+import ru.oleevych.cloudspace.dto.FileResourceDto;
 import ru.oleevych.cloudspace.exceptions.DownloadFileException;
 import ru.oleevych.cloudspace.exceptions.ObjectAlreadyExists;
 import ru.oleevych.cloudspace.repository.FileRepository;
@@ -21,7 +21,7 @@ public class FileService {
         fileRepository.saveFile(path, file);
     }
 
-    public FileDto downloadFile(String filePath) {
+    public FileResourceDto downloadFile(String filePath) {
         String name = Paths.get(filePath).getFileName().toString();
         InputStream file = fileRepository.getFile(filePath);
         Resource resource;
@@ -30,7 +30,7 @@ public class FileService {
         } catch (IOException e) {
             throw new DownloadFileException("Error while reading" + name + "file", e);
         }
-        return new FileDto(name, resource);
+        return new FileResourceDto(name, resource);
     }
 
     public void renameFile(String path, String newName) {

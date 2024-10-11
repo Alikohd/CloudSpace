@@ -1,5 +1,6 @@
 package ru.oleevych.cloudspace.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -13,6 +14,7 @@ import ru.oleevych.cloudspace.security.UserDetailsImpl;
 import ru.oleevych.cloudspace.service.FolderService;
 import ru.oleevych.cloudspace.utils.BreadcrumbUtils;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -30,7 +32,7 @@ public class FolderController {
                            @RequestParam(defaultValue = "false") boolean recursive, Model model,
                            @AuthenticationPrincipal UserDetailsImpl user) {
         String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), path);
-        List<FileMetaDto> files = folderService.getFiles(userPath, recursive);
+        List<FileMetaDto> files = folderService.getFilesInfo(userPath, recursive);
         model.addAttribute("files", files);
         model.addAttribute("breadcrumbs", BreadcrumbUtils.createBreadcrumbs(path));
         model.addAttribute("currentPath", path);
@@ -43,6 +45,16 @@ public class FolderController {
         String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), path);
         folderService.renameFolder(userPath, newName);
         return HOME_URL_REDIRECT + URLEncoder.encode(location, StandardCharsets.UTF_8);
+    }
+
+    @GetMapping("download")
+    public void downloadFolder(@RequestParam String path, HttpServletResponse response, @RequestParam String location,
+                                 @AuthenticationPrincipal UserDetailsImpl user) throws IOException {
+        response.setContentType("application/zip");
+        response.setHeader("Content-Disposition", "attachment; filename=\"archive.zip\"");
+
+        String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), path);
+        folderService.downloadFolder(userPath, response.getOutputStream());
     }
 
 }

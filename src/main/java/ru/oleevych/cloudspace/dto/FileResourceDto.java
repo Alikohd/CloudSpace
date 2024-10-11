@@ -6,7 +6,7 @@ import org.springframework.core.io.Resource;
 
 @Data
 @AllArgsConstructor
-public class FileDto {
+public class FileResourceDto {
     private String name;
     private Resource content;
 }

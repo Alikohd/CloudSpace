@@ -5,10 +5,13 @@ import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import ru.oleevych.cloudspace.dto.FileMetaDto;
+import ru.oleevych.cloudspace.dto.FileInputStreamDto;
 import ru.oleevych.cloudspace.exceptions.MinioOperationException;
 import ru.oleevych.cloudspace.mapper.MinioMapper;
 
+import java.io.FilterInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -90,22 +93,22 @@ public class MinioRepository implements FileRepository {
     }
 
     @Override
-    public List<FileMetaDto> getFilesFromFolder(String folder, Boolean recursive) {
+    public List<FileMetaDto> getFilesMeta(String folder, Boolean recursive) {
         Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder()
                 .recursive(recursive)
                 .prefix(folder)
                 .bucket(BUCKET_NAME)
                 .build());
-        return minioMapper.mapToListDto(results);
+        return minioMapper.mapToFileMetaListDto(results);
     }
 
     @Override
     public boolean isFolderExists(String path) {
-        return !getFilesFromFolder(path, false).isEmpty();
+        return !getFilesMeta(path, false).isEmpty();
     }
 
     @Override
-    public InputStream getFile(String filePath) {
+    public FilterInputStream getFile(String filePath) {
         GetObjectResponse file;
         try {
             file = minioClient.getObject(GetObjectArgs.builder()
@@ -130,6 +133,23 @@ public class MinioRepository implements FileRepository {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @Override
+    public List<FileInputStreamDto> getFiles(String folder, boolean recursive) {
+        Iterable<Result<Item>> files = minioClient.listObjects(ListObjectsArgs.builder()
+                .recursive(recursive)
+                .prefix(folder)
+                .bucket(BUCKET_NAME)
+                .build());
+        List<String> paths = minioMapper.mapToPathList(files);
+
+        List<FileInputStreamDto> result = new ArrayList<>(paths.size());
+        for (var path : paths) {
+            FileInputStreamDto file = new FileInputStreamDto(path, getFile(path));
+            result.add(file);
+        }
+        return result;
     }
 
 }
