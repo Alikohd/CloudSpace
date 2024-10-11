@@ -5,8 +5,8 @@ import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.oleevych.cloudspace.dto.FileMetaDto;
-import ru.oleevych.cloudspace.dto.FileInputStreamDto;
 import ru.oleevych.cloudspace.exceptions.MinioMappingException;
+import ru.oleevych.cloudspace.utils.UserFolderUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,8 +22,7 @@ public class MinioMapper {
             try {
                 Item currItem = item.get();
                 var currDto = mapToMetaDto(currItem);
-                String nameWithHiddenUserDir = currDto.getPath().replaceFirst("user-\\d-files/", "");
-                currDto.setPath(nameWithHiddenUserDir);
+                currDto.setPath(UserFolderUtils.removeUserFolder(currDto.getPath()));
                 resultList.add(currDto);
             } catch (Exception e) {
                 throw new MinioMappingException("An error occurred while mapping from FileRepository toFileMetaListDto", e);

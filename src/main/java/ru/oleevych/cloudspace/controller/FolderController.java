@@ -13,6 +13,7 @@ import ru.oleevych.cloudspace.dto.FileMetaDto;
 import ru.oleevych.cloudspace.security.UserDetailsImpl;
 import ru.oleevych.cloudspace.service.FolderService;
 import ru.oleevych.cloudspace.utils.BreadcrumbUtils;
+import ru.oleevych.cloudspace.utils.UserFolderUtils;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -24,14 +25,13 @@ import java.util.List;
 @RequestMapping("drive/folder")
 public class FolderController {
     private final FolderService folderService;
-    private final String USER_FILES_PATTERN = "user-%d-files/%s";
     private final String HOME_URL_REDIRECT = "redirect:/drive/folder?path=";
 
     @GetMapping()
     public String getFiles(@RequestParam String path,
                            @RequestParam(defaultValue = "false") boolean recursive, Model model,
                            @AuthenticationPrincipal UserDetailsImpl user) {
-        String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), path);
+        String userPath = UserFolderUtils.addUserFolder(path, user.getUserId());
         List<FileMetaDto> files = folderService.getFilesInfo(userPath, recursive);
         model.addAttribute("files", files);
         model.addAttribute("breadcrumbs", BreadcrumbUtils.createBreadcrumbs(path));
@@ -42,7 +42,7 @@ public class FolderController {
     @PatchMapping("rename")
     public String renameFolder(@RequestParam String path, @RequestParam String newName, @RequestParam String location,
                                @AuthenticationPrincipal UserDetailsImpl user) {
-        String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), path);
+        String userPath = UserFolderUtils.addUserFolder(path, user.getUserId());
         folderService.renameFolder(userPath, newName);
         return HOME_URL_REDIRECT + URLEncoder.encode(location, StandardCharsets.UTF_8);
     }
@@ -53,7 +53,7 @@ public class FolderController {
         response.setContentType("application/zip");
         response.setHeader("Content-Disposition", "attachment; filename=\"archive.zip\"");
 
-        String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), path);
+        String userPath = UserFolderUtils.addUserFolder(path, user.getUserId());
         folderService.downloadFolder(userPath, response.getOutputStream());
     }
 

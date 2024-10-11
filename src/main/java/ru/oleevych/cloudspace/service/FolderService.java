@@ -6,6 +6,7 @@ import ru.oleevych.cloudspace.dto.FileMetaDto;
 import ru.oleevych.cloudspace.dto.FileInputStreamDto;
 import ru.oleevych.cloudspace.exceptions.ObjectAlreadyExists;
 import ru.oleevych.cloudspace.repository.FileRepository;
+import ru.oleevych.cloudspace.utils.UserFolderUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,16 +34,12 @@ public class FolderService {
 
     public void downloadFolder(String folder, OutputStream outputStream) throws IOException {
         List<FileInputStreamDto> files = fileRepository.getFiles(folder, true);
-
-        System.out.println("heafasf");
-        System.out.println("heafasf");
-        System.out.println("heafasf");
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream);) {
             for (var file : files) {
                 String path = file.getPath();
                 InputStream content = file.getContent();
 
-                ZipEntry zipEntry = new ZipEntry(path);
+                ZipEntry zipEntry = new ZipEntry(UserFolderUtils.removeUserFolder(path));
                 zipOutputStream.putNextEntry(zipEntry);
 
                 byte[] buffer = new byte[1024];

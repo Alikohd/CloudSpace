@@ -16,7 +16,6 @@ public interface FileRepository {
     boolean isFolderExists(String path);
     FilterInputStream getFile(String filePath);
     boolean isFileExists(String path);
-
     List<FileInputStreamDto> getFiles(String folder, boolean recursive);
 }
 
