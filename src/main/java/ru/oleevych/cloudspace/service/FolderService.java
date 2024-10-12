@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -25,20 +26,28 @@ import java.util.zip.ZipOutputStream;
 public class FolderService {
     private final FileRepository fileRepository;
 
-    public void renameFolder(String path, String newName) {
-        String newPath = path.replaceFirst("[^/]+/$", newName) + "/";
+    public void renameFolder(String path, String newName, Long userId) {
+        String userPath = UserFolderUtils.addUserFolder(path, userId);
+
+        String newPath = userPath.replaceFirst("[^/]+/$", newName) + "/";
         if (fileRepository.isFolderExists(newPath)) {
             throw new ObjectAlreadyExists("Folder on the path " + newPath + " already exists");
         }
-        fileRepository.moveFolder(path, newPath);
+        fileRepository.moveFolder(userPath, newPath);
     }
 
-    public List<FileMetaDto> getFilesInfo(String folder, boolean recursive) {
-        return fileRepository.getFilesMeta(folder, recursive);
+    public List<FileMetaDto> getFilesInfo(String path, Long userId, boolean recursive) {
+        String userPath = UserFolderUtils.addUserFolder(path, userId);
+        List<FileMetaDto> files = fileRepository.getFilesMeta(userPath, recursive);
+        Predicate<FileMetaDto> isUserDir = (fileMetaDto) -> fileMetaDto.getName().equals(UserFolderUtils.getUserFolder(userId));
+        files.removeIf(isUserDir);
+        return files;
     }
 
-    public void downloadFolder(String folder, OutputStream outputStream) throws IOException {
-        List<FileInputStreamDto> files = fileRepository.getFiles(folder, true);
+    public void downloadFolder(String folder, OutputStream outputStream, Long userId) throws IOException {
+        String userPathFolder = UserFolderUtils.addUserFolder(folder, userId);
+// TODO: when downloading nested dirs, upper dirs includes into archive, should add location param and split filepaths by it
+        List<FileInputStreamDto> files = fileRepository.getFiles(userPathFolder, true);
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream);) {
             for (var file : files) {
                 String path = file.getPath();
@@ -52,7 +61,8 @@ public class FolderService {
                 while ((length = content.read(buffer)) >= 0) {
                     zipOutputStream.write(buffer, 0, length);
                 }
-                zipOutputStream.closeEntry();;
+                zipOutputStream.closeEntry();
+                ;
             }
         }
 
@@ -61,7 +71,7 @@ public class FolderService {
     @SneakyThrows
     public void uploadFolder(String location, Collection<Part> parts, Long userId) {
         String userPath = UserFolderUtils.addUserFolder(location, userId);
-        for (var part :parts) {
+        for (var part : parts) {
             fileRepository.saveFile(userPath + part.getSubmittedFileName(), part.getInputStream());
         }
     }

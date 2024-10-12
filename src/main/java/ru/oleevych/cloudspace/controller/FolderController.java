@@ -33,8 +33,7 @@ public class FolderController {
     public String getFiles(@RequestParam String path,
                            @RequestParam(defaultValue = "false") boolean recursive, Model model,
                            @AuthenticationPrincipal UserDetailsImpl user) {
-        String userPath = UserFolderUtils.addUserFolder(path, user.getUserId());
-        List<FileMetaDto> files = folderService.getFilesInfo(userPath, recursive);
+        List<FileMetaDto> files = folderService.getFilesInfo(path, user.getUserId(), recursive);
         model.addAttribute("files", files);
         model.addAttribute("breadcrumbs", BreadcrumbUtils.createBreadcrumbs(path));
         model.addAttribute("currentPath", path);
@@ -44,8 +43,7 @@ public class FolderController {
     @PatchMapping("rename")
     public String renameFolder(@RequestParam String path, @RequestParam String newName, @RequestParam String location,
                                @AuthenticationPrincipal UserDetailsImpl user) {
-        String userPath = UserFolderUtils.addUserFolder(path, user.getUserId());
-        folderService.renameFolder(userPath, newName);
+        folderService.renameFolder(path, newName, user.getUserId());
         return HOME_URL_REDIRECT + URLEncoder.encode(location, StandardCharsets.UTF_8);
     }
 
@@ -55,8 +53,7 @@ public class FolderController {
                                @AuthenticationPrincipal UserDetailsImpl user) {
         response.setContentType("application/zip");
         response.setHeader("Content-Disposition", "attachment; filename=\"archive.zip\"");
-        String userPath = UserFolderUtils.addUserFolder(path, user.getUserId());
-        folderService.downloadFolder(userPath, response.getOutputStream());
+        folderService.downloadFolder(path, response.getOutputStream(), user.getUserId());
     }
 
     @PostMapping(value = "upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.oleevych.cloudspace.dto.FileResourceDto;
 import ru.oleevych.cloudspace.security.UserDetailsImpl;
 import ru.oleevych.cloudspace.service.FileService;
+import ru.oleevych.cloudspace.utils.UserFolderUtils;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -23,14 +24,12 @@ import java.nio.charset.StandardCharsets;
 @RequiredArgsConstructor
 public class FileController {
     private final FileService fileService;
-    private final String USER_FILES_PATTERN = "user-%d-files/%s";
     private final String HOME_URL_REDIRECT = "redirect:/drive/folder?path=";
 
     @GetMapping("/download")
     @SneakyThrows
     public ResponseEntity<Resource> downloadFile(@RequestParam String path, @AuthenticationPrincipal UserDetailsImpl user) {
-        String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), path);
-        FileResourceDto fileDto = fileService.downloadFile(userPath);
+        FileResourceDto fileDto = fileService.downloadFile(path, user.getUserId());
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .contentLength(fileDto.getContent().contentLength())
@@ -43,8 +42,7 @@ public class FileController {
     public String uploadFile(@RequestParam("location") String location,
                              @RequestParam("file") MultipartFile file,
                              @AuthenticationPrincipal UserDetailsImpl user) {
-        String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), location);
-        fileService.saveFile(userPath + file.getOriginalFilename(), file.getInputStream());
+        fileService.saveFile(file.getOriginalFilename(), file.getInputStream(), user.getUserId());
         return HOME_URL_REDIRECT + URLEncoder.encode(location, StandardCharsets.UTF_8);
     }
 
@@ -53,8 +51,7 @@ public class FileController {
                              @RequestParam("location") String location,
                              @RequestParam("newName") String newName,
                              @AuthenticationPrincipal UserDetailsImpl user) {
-        String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), path);
-        fileService.renameFile(userPath, newName);
+        fileService.renameFile(path, newName, user.getUserId());
         return HOME_URL_REDIRECT + URLEncoder.encode(location, StandardCharsets.UTF_8);
     }
 
