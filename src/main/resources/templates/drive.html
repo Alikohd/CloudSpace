@@ -78,6 +78,14 @@ Hello from drive page!
     <br>
     <input type="submit" value="Upload">
 </form>
+
+<form method="POST" enctype="multipart/form-data" th:action="@{/drive/folder/upload(location=${currentPath})}">
+    Folder to upload:
+    <input type="file" name="folder" multiple webkitdirectory/>
+    <br>
+    <input type="submit" value="Upload">
+</form>
+
 </body>
 
 <style>

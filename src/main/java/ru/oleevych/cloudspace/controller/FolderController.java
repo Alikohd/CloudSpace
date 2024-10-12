@@ -1,14 +1,15 @@
 package ru.oleevych.cloudspace.controller;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import ru.oleevych.cloudspace.dto.FileMetaDto;
 import ru.oleevych.cloudspace.security.UserDetailsImpl;
 import ru.oleevych.cloudspace.service.FolderService;
@@ -26,6 +27,7 @@ import java.util.List;
 public class FolderController {
     private final FolderService folderService;
     private final String HOME_URL_REDIRECT = "redirect:/drive/folder?path=";
+
 
     @GetMapping()
     public String getFiles(@RequestParam String path,
@@ -48,13 +50,21 @@ public class FolderController {
     }
 
     @GetMapping("download")
-    public void downloadFolder(@RequestParam String path, HttpServletResponse response, @RequestParam String location,
-                                 @AuthenticationPrincipal UserDetailsImpl user) throws IOException {
+    @SneakyThrows
+    public void downloadFolder(@RequestParam String path, HttpServletResponse response,
+                               @AuthenticationPrincipal UserDetailsImpl user) {
         response.setContentType("application/zip");
         response.setHeader("Content-Disposition", "attachment; filename=\"archive.zip\"");
-
         String userPath = UserFolderUtils.addUserFolder(path, user.getUserId());
         folderService.downloadFolder(userPath, response.getOutputStream());
+    }
+
+    @PostMapping(value = "upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @SneakyThrows
+    public String uploadFolder(@RequestParam String location, HttpServletRequest request,
+                             @AuthenticationPrincipal UserDetailsImpl user) {
+        folderService.uploadFolder(location, request.getParts(), user.getUserId());
+        return HOME_URL_REDIRECT + URLEncoder.encode(location, StandardCharsets.UTF_8);
     }
 
 }

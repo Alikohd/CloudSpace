@@ -1,6 +1,7 @@
 package ru.oleevych.cloudspace.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -26,7 +27,8 @@ public class FileController {
     private final String HOME_URL_REDIRECT = "redirect:/drive/folder?path=";
 
     @GetMapping("/download")
-    public ResponseEntity<Resource> downloadFile(@RequestParam String path, @AuthenticationPrincipal UserDetailsImpl user) throws IOException {
+    @SneakyThrows
+    public ResponseEntity<Resource> downloadFile(@RequestParam String path, @AuthenticationPrincipal UserDetailsImpl user) {
         String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), path);
         FileResourceDto fileDto = fileService.downloadFile(userPath);
         return ResponseEntity.ok()
@@ -37,9 +39,10 @@ public class FileController {
     }
 
     @PostMapping(value = "upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @SneakyThrows
     public String uploadFile(@RequestParam("location") String location,
                              @RequestParam("file") MultipartFile file,
-                             @AuthenticationPrincipal UserDetailsImpl user) throws IOException {
+                             @AuthenticationPrincipal UserDetailsImpl user) {
         String userPath = String.format(USER_FILES_PATTERN, user.getUserId(), location);
         fileService.saveFile(userPath + file.getOriginalFilename(), file.getInputStream());
         return HOME_URL_REDIRECT + URLEncoder.encode(location, StandardCharsets.UTF_8);
@@ -56,7 +59,8 @@ public class FileController {
     }
 
 
-    // TODO Rename & Upload/Download endpoints
-    // TODO Валидация путей по которым приходят файлы
+    // TODO 1) Upload for folder
+    // TODO 2) Валидация путей по которым приходят файлы
+//    TODO 3) Зарефакторить параметры эндпоинтов?
 
 }

@@ -1,6 +1,8 @@
 package ru.oleevych.cloudspace.service;
 
+import jakarta.servlet.http.Part;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import ru.oleevych.cloudspace.dto.FileMetaDto;
 import ru.oleevych.cloudspace.dto.FileInputStreamDto;
@@ -11,7 +13,10 @@ import ru.oleevych.cloudspace.utils.UserFolderUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -51,5 +56,13 @@ public class FolderService {
             }
         }
 
+    }
+
+    @SneakyThrows
+    public void uploadFolder(String location, Collection<Part> parts, Long userId) {
+        String userPath = UserFolderUtils.addUserFolder(location, userId);
+        for (var part :parts) {
+            fileRepository.saveFile(userPath + part.getSubmittedFileName(), part.getInputStream());
+        }
     }
 }
